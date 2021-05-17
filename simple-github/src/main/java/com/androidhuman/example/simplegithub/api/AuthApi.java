@@ -2,7 +2,7 @@ package com.androidhuman.example.simplegithub.api;
 
 import com.androidhuman.example.simplegithub.api.model.GithubAccessToken;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import retrofit2.Call;
 import retrofit2.http.Field;

@@ -7,8 +7,8 @@ import com.androidhuman.example.simplegithub.api.model.GithubRepo;
 import com.androidhuman.example.simplegithub.ui.GlideApp;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;

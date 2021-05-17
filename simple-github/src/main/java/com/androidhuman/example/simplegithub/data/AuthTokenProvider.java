@@ -2,8 +2,8 @@ package com.androidhuman.example.simplegithub.data;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public final class AuthTokenProvider {
 
