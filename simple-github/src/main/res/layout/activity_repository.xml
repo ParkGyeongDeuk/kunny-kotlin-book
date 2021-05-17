@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,181 +9,221 @@
     android:paddingRight="8dp"
     android:paddingTop="12dp">
 
-    <LinearLayout
-        android:id="@+id/llActivityRepositoryContent"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:divider="?android:listDivider"
-        android:orientation="vertical"
-        android:showDividers="middle">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clActivityRepositoryContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/ivActivityRepositoryProfile"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:src="@drawable/ic_launcher_background"/>
+
+        <TextView
+            android:id="@+id/tvActivityRepositoryName"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="4dp"
+            android:maxLines="2"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textColor="@color/githubBlue"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintTop_toTopOf="@+id/ivActivityRepositoryProfile"
+            app:layout_constraintStart_toEndOf="@+id/ivActivityRepositoryProfile"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvActivityRepositoryStars"
+            tools:text="username/myrepository"/>
 
-            <ImageView
-                android:id="@+id/ivActivityRepositoryProfile"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                tools:src="@drawable/ic_launcher_background" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
-                android:layout_toEndOf="@+id/ivActivityRepositoryProfile"
-                android:layout_toRightOf="@id/ivActivityRepositoryProfile"
-
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvActivityRepositoryName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:maxLines="2"
-                    android:textAppearance="?android:textAppearanceLarge"
-                    android:textColor="@color/githubBlue"
-                    tools:text="username/myrepository" />
-
-                <TextView
-                    android:id="@+id/tvActivityRepositoryStars"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableLeft="@drawable/ic_star_black"
-                    android:drawableStart="@drawable/ic_star_black"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textColor="@color/githubBlack"
-                    tools:text="100 Stars" />
-            </LinearLayout>
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvActivityRepositoryStars"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingBottom="12dp"
-            android:paddingTop="12dp">
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@color/githubBlack"
+            app:drawableStartCompat="@drawable/ic_star_black"
+            app:drawableLeftCompat="@drawable/ic_star_black"
+            app:layout_constraintTop_toBottomOf="@+id/tvActivityRepositoryName"
+            app:layout_constraintStart_toStartOf="@+id/tvActivityRepositoryName"
+            app:layout_constraintEnd_toEndOf="@+id/tvActivityRepositoryName"
+            app:layout_constraintBottom_toBottomOf="@+id/ivActivityRepositoryProfile"
+            tools:text="100 Stars"/>
 
-            <ImageView
-                android:id="@+id/ivActivityRepositoryDescription"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:src="@drawable/ic_description_black"
-                android:tint="@color/gray" />
+        <View
+            android:id="@+id/vProfileDivider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/gray"
+            app:layout_constraintTop_toBottomOf="@+id/ivActivityRepositoryProfile"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-            <TextView
-                android:id="@+id/tvActivityRepositoryDescription"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="60dp"
-                android:layout_marginStart="60dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                tools:text="My Description" />
+        <ImageView
+            android:id="@+id/ivActivityRepositoryDescription"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="12dp"
+            android:src="@drawable/ic_description_black"
+            app:tint="@color/gray"
+            app:layout_constraintTop_toBottomOf="@+id/vProfileDivider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/vDescriptionDivider"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tvActivityRepositoryDescription"
-                android:layout_marginLeft="60dp"
-                android:layout_marginStart="60dp"
-                android:text="@string/description"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvActivityRepositoryDescription"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingBottom="12dp"
-            android:paddingTop="12dp">
+            android:layout_marginStart="20dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintTop_toTopOf="@+id/ivActivityRepositoryDescription"
+            app:layout_constraintStart_toEndOf="@+id/ivActivityRepositoryDescription"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvRepositoryDescription"
+            tools:text="My Description"/>
 
-            <ImageView
-                android:id="@+id/ivActivityRepositoryLanguage"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:src="@drawable/ic_language_black"
-                android:tint="@color/gray" />
-
-            <TextView
-                android:id="@+id/tvActivityRepositoryLanguage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="60dp"
-                android:layout_marginStart="60dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                tools:text="Kotlin" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tvActivityRepositoryLanguage"
-                android:layout_marginLeft="60dp"
-                android:layout_marginStart="60dp"
-                android:text="@string/language"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvRepositoryDescription"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingBottom="12dp"
-            android:paddingTop="12dp">
+            android:text="@string/description"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            app:layout_constraintTop_toBottomOf="@+id/tvActivityRepositoryDescription"
+            app:layout_constraintStart_toStartOf="@+id/tvActivityRepositoryDescription"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/ivActivityRepositoryDescription"/>
 
-            <ImageView
-                android:id="@+id/ivActivityRepositoryLastUpdate"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:src="@drawable/ic_update_black"
-                android:tint="@color/gray" />
+        <View
+            android:id="@+id/vDescriptionDivider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/gray"
+            app:layout_constraintTop_toBottomOf="@+id/ivActivityRepositoryDescription"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/ivActivityRepositoryLanguage"/>
 
-            <TextView
-                android:id="@+id/tvActivityRepositoryLastUpdate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="60dp"
-                android:layout_marginStart="60dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                tools:text="yyyy/MM/dd" />
+        <ImageView
+            android:id="@+id/ivActivityRepositoryLanguage"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="12dp"
+            android:src="@drawable/ic_language_black"
+            app:tint="@color/gray"
+            app:layout_constraintTop_toBottomOf="@+id/vDescriptionDivider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/vLanguageDivider"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tvActivityRepositoryLastUpdate"
-                android:layout_marginLeft="60dp"
-                android:layout_marginStart="60dp"
-                android:text="@string/last_update"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
-        </RelativeLayout>
+        <TextView
+            android:id="@+id/tvActivityRepositoryLanguage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintTop_toTopOf="@+id/ivActivityRepositoryLanguage"
+            app:layout_constraintStart_toEndOf="@+id/ivActivityRepositoryLanguage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvRepositoryLanguage"
+            tools:text="Kotlin"/>
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/tvRepositoryLanguage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/language"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            app:layout_constraintTop_toBottomOf="@+id/tvActivityRepositoryLanguage"
+            app:layout_constraintStart_toStartOf="@+id/tvActivityRepositoryLanguage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/ivActivityRepositoryLanguage"/>
+
+        <View
+            android:id="@+id/vLanguageDivider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/gray"
+            app:layout_constraintTop_toBottomOf="@+id/ivActivityRepositoryLanguage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/ivActivityRepositoryLastUpdate"/>
+
+        <ImageView
+            android:id="@+id/ivActivityRepositoryLastUpdate"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="12dp"
+            android:src="@drawable/ic_update_black"
+            app:tint="@color/gray"
+            app:layout_constraintTop_toBottomOf="@+id/vLanguageDivider"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvActivityRepositoryLastUpdate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintTop_toTopOf="@+id/ivActivityRepositoryLastUpdate"
+            app:layout_constraintStart_toEndOf="@+id/ivActivityRepositoryLastUpdate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvRepositoryLastUpdate"
+            tools:text="yyyy/MM/dd" />
+
+        <TextView
+            android:id="@+id/tvRepositoryLastUpdate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/last_update"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            app:layout_constraintTop_toBottomOf="@+id/tvActivityRepositoryLastUpdate"
+            app:layout_constraintStart_toStartOf="@+id/tvActivityRepositoryLastUpdate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/ivActivityRepositoryLastUpdate"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ProgressBar
         android:id="@+id/pbActivityRepository"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:visibility="visible"/>
 
     <TextView
         android:id="@+id/tvActivityRepositoryMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textColor="@color/githubBlack" />
+        android:textColor="@color/githubBlack"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
