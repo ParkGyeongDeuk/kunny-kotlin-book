@@ -4,16 +4,13 @@ import com.androidhuman.example.simplegithub.R;
 import com.androidhuman.example.simplegithub.api.GithubApi;
 import com.androidhuman.example.simplegithub.api.GithubApiProvider;
 import com.androidhuman.example.simplegithub.api.model.GithubRepo;
+import com.androidhuman.example.simplegithub.databinding.ActivityRepositoryBinding;
 import com.androidhuman.example.simplegithub.ui.GlideApp;
 
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,51 +24,21 @@ import retrofit2.Response;
 public class RepositoryActivity extends AppCompatActivity {
 
     public static final String KEY_USER_LOGIN = "user_login";
-
     public static final String KEY_REPO_NAME = "repo_name";
 
-    LinearLayout llContent;
-
-    ImageView ivProfile;
-
-    TextView tvName;
-
-    TextView tvStars;
-
-    TextView tvDescription;
-
-    TextView tvLanguage;
-
-    TextView tvLastUpdate;
-
-    ProgressBar pbProgress;
-
-    TextView tvMessage;
+    private ActivityRepositoryBinding binding;
 
     GithubApi api;
-
     Call<GithubRepo> repoCall;
 
-    SimpleDateFormat dateFormatInResponse = new SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault());
-
-    SimpleDateFormat dateFormatToShow = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+    SimpleDateFormat dateFormatInResponse = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault());
+    SimpleDateFormat dateFormatToShow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_repository);
-
-        llContent = findViewById(R.id.llActivityRepositoryContent);
-        ivProfile = findViewById(R.id.ivActivityRepositoryProfile);
-        tvName = findViewById(R.id.tvActivityRepositoryName);
-        tvStars = findViewById(R.id.tvActivityRepositoryStars);
-        tvDescription = findViewById(R.id.tvActivityRepositoryDescription);
-        tvLanguage = findViewById(R.id.tvActivityRepositoryLanguage);
-        tvLastUpdate = findViewById(R.id.tvActivityRepositoryLastUpdate);
-        pbProgress = findViewById(R.id.pbActivityRepository);
-        tvMessage = findViewById(R.id.tvActivityRepositoryMessage);
+        binding = ActivityRepositoryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         api = GithubApiProvider.provideGithubApi(this);
 
@@ -100,27 +67,27 @@ public class RepositoryActivity extends AppCompatActivity {
                 if (response.isSuccessful() && null != repo) {
                     GlideApp.with(RepositoryActivity.this)
                             .load(repo.owner.avatarUrl)
-                            .into(ivProfile);
+                            .into(binding.ivActivityRepositoryProfile);
 
-                    tvName.setText(repo.fullName);
-                    tvStars.setText(getResources()
+                    binding.tvActivityRepositoryName.setText(repo.fullName);
+                    binding.tvActivityRepositoryStars.setText(getResources()
                             .getQuantityString(R.plurals.star, repo.stars, repo.stars));
                     if (null == repo.description) {
-                        tvDescription.setText(R.string.no_description_provided);
+                        binding.tvActivityRepositoryDescription.setText(R.string.no_description_provided);
                     } else {
-                        tvDescription.setText(repo.description);
+                        binding.tvActivityRepositoryDescription.setText(repo.description);
                     }
                     if (null == repo.language) {
-                        tvLanguage.setText(R.string.no_language_specified);
+                        binding.tvActivityRepositoryLanguage.setText(R.string.no_language_specified);
                     } else {
-                        tvLanguage.setText(repo.language);
+                        binding.tvActivityRepositoryLanguage.setText(repo.language);
                     }
 
                     try {
                         Date lastUpdate = dateFormatInResponse.parse(repo.updatedAt);
-                        tvLastUpdate.setText(dateFormatToShow.format(lastUpdate));
+                        binding.tvActivityRepositoryLastUpdate.setText(dateFormatToShow.format(lastUpdate));
                     } catch (ParseException e) {
-                        tvLastUpdate.setText(getString(R.string.unknown));
+                        binding.tvActivityRepositoryLastUpdate.setText(getString(R.string.unknown));
                     }
                 } else {
                     showError("Not successful: " + response.message());
@@ -136,17 +103,17 @@ public class RepositoryActivity extends AppCompatActivity {
     }
 
     private void showProgress() {
-        llContent.setVisibility(View.GONE);
-        pbProgress.setVisibility(View.VISIBLE);
+        binding.clActivityRepositoryContent.setVisibility(View.GONE);
+        binding.pbActivityRepository.setVisibility(View.VISIBLE);
     }
 
     private void hideProgress(boolean isSucceed) {
-        llContent.setVisibility(isSucceed ? View.VISIBLE : View.GONE);
-        pbProgress.setVisibility(View.GONE);
+        binding.clActivityRepositoryContent.setVisibility(isSucceed ? View.VISIBLE : View.GONE);
+        binding.pbActivityRepository.setVisibility(View.GONE);
     }
 
     private void showError(String message) {
-        tvMessage.setText(message);
-        tvMessage.setVisibility(View.VISIBLE);
+        binding.tvActivityRepositoryMessage.setText(message);
+        binding.tvActivityRepositoryMessage.setVisibility(View.VISIBLE);
     }
 }

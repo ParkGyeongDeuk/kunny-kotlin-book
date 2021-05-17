@@ -1,11 +1,11 @@
 package com.androidhuman.example.simplegithub.ui.signin;
 
 import com.androidhuman.example.simplegithub.BuildConfig;
-import com.androidhuman.example.simplegithub.R;
 import com.androidhuman.example.simplegithub.api.AuthApi;
 import com.androidhuman.example.simplegithub.api.GithubApiProvider;
 import com.androidhuman.example.simplegithub.api.model.GithubAccessToken;
 import com.androidhuman.example.simplegithub.data.AuthTokenProvider;
+import com.androidhuman.example.simplegithub.databinding.ActivitySignInBinding;
 import com.androidhuman.example.simplegithub.ui.main.MainActivity;
 
 import android.content.Intent;
@@ -16,8 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import retrofit2.Call;
@@ -26,25 +24,19 @@ import retrofit2.Response;
 
 public class SignInActivity extends AppCompatActivity {
 
-    Button btnStart;
-
-    ProgressBar progress;
+    private ActivitySignInBinding binding;
 
     AuthApi api;
-
     AuthTokenProvider authTokenProvider;
-
     Call<GithubAccessToken> accessTokenCall;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_in);
+        binding = ActivitySignInBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        btnStart = findViewById(R.id.btnActivitySignInStart);
-        progress = findViewById(R.id.pbActivitySignIn);
-
-        btnStart.setOnClickListener(new View.OnClickListener() {
+        binding.btnActivitySignInStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Uri authUri = new Uri.Builder().scheme("https").authority("github.com")
@@ -118,13 +110,13 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void showProgress() {
-        btnStart.setVisibility(View.GONE);
-        progress.setVisibility(View.VISIBLE);
+        binding.btnActivitySignInStart.setVisibility(View.GONE);
+        binding.pbActivitySignIn.setVisibility(View.VISIBLE);
     }
 
     private void hideProgress() {
-        btnStart.setVisibility(View.VISIBLE);
-        progress.setVisibility(View.GONE);
+        binding.btnActivitySignInStart.setVisibility(View.VISIBLE);
+        binding.pbActivitySignIn.setVisibility(View.GONE);
     }
 
     private void showError(Throwable throwable) {

@@ -2,6 +2,7 @@ package com.androidhuman.example.simplegithub.ui.search;
 
 import com.androidhuman.example.simplegithub.R;
 import com.androidhuman.example.simplegithub.api.model.GithubRepo;
+import com.androidhuman.example.simplegithub.databinding.ItemRepositoryBinding;
 import com.androidhuman.example.simplegithub.ui.GlideApp;
 
 import android.graphics.Color;
@@ -13,8 +14,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Repository
 
     @Override
     public RepositoryHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new RepositoryHolder(parent);
+        return new RepositoryHolder(ItemRepositoryBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -40,10 +39,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Repository
         GlideApp.with(holder.itemView.getContext())
                 .load(repo.owner.avatarUrl)
                 .placeholder(placeholder)
-                .into(holder.ivProfile);
+                .into(holder.binding.ivItemRepositoryProfile);
 
-        holder.tvName.setText(repo.fullName);
-        holder.tvLanguage.setText(TextUtils.isEmpty(repo.language)
+        holder.binding.tvItemRepositoryName.setText(repo.fullName);
+        holder.binding.tvItemRepositoryLanguage.setText(TextUtils.isEmpty(repo.language)
                 ? holder.itemView.getContext().getText(R.string.no_language_specified)
                 : repo.language);
 
@@ -76,19 +75,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Repository
 
     static class RepositoryHolder extends RecyclerView.ViewHolder {
 
-        ImageView ivProfile;
+        private ItemRepositoryBinding binding;
 
-        TextView tvName;
-
-        TextView tvLanguage;
-
-        RepositoryHolder(ViewGroup parent) {
-            super(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_repository, parent, false));
-
-            ivProfile = itemView.findViewById(R.id.ivItemRepositoryProfile);
-            tvName = itemView.findViewById(R.id.tvItemRepositoryName);
-            tvLanguage = itemView.findViewById(R.id.tvItemRepositoryLanguage);
+        RepositoryHolder(ItemRepositoryBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 

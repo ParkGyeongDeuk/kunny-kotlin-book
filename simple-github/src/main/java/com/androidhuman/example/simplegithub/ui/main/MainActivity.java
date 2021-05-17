@@ -1,13 +1,11 @@
 package com.androidhuman.example.simplegithub.ui.main;
 
-import com.androidhuman.example.simplegithub.R;
 import com.androidhuman.example.simplegithub.databinding.ActivityMainBinding;
 import com.androidhuman.example.simplegithub.ui.search.SearchActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 

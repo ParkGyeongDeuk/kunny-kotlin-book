@@ -5,6 +5,7 @@ import com.androidhuman.example.simplegithub.api.GithubApi;
 import com.androidhuman.example.simplegithub.api.GithubApiProvider;
 import com.androidhuman.example.simplegithub.api.model.GithubRepo;
 import com.androidhuman.example.simplegithub.api.model.RepoSearchResponse;
+import com.androidhuman.example.simplegithub.databinding.ActivitySearchBinding;
 import com.androidhuman.example.simplegithub.ui.repo.RepositoryActivity;
 
 import android.content.Intent;
@@ -13,14 +14,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,35 +26,26 @@ import retrofit2.Response;
 
 public class SearchActivity extends AppCompatActivity implements SearchAdapter.ItemClickListener {
 
-    RecyclerView rvList;
-
-    ProgressBar progress;
-
-    TextView tvMessage;
+    private ActivitySearchBinding binding;
 
     MenuItem menuSearch;
-
     SearchView searchView;
 
     SearchAdapter adapter;
 
     GithubApi api;
-
     Call<RepoSearchResponse> searchCall;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivitySearchBinding.inflate(getLayoutInflater());
         setContentView(R.layout.activity_search);
-
-        rvList = findViewById(R.id.rvActivitySearchList);
-        progress = findViewById(R.id.pbActivitySearch);
-        tvMessage = findViewById(R.id.tvActivitySearchMessage);
 
         adapter = new SearchAdapter();
         adapter.setItemClickListener(this);
-        rvList.setLayoutManager(new LinearLayoutManager(this));
-        rvList.setAdapter(adapter);
+        binding.rvActivitySearchList.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvActivitySearchList.setAdapter(adapter);
 
         api = GithubApiProvider.provideGithubApi(this);
     }
@@ -160,20 +149,20 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.I
     }
 
     private void showProgress() {
-        progress.setVisibility(View.VISIBLE);
+        binding.pbActivitySearch.setVisibility(View.VISIBLE);
     }
 
     private void hideProgress() {
-        progress.setVisibility(View.GONE);
+        binding.pbActivitySearch.setVisibility(View.GONE);
     }
 
     private void showError(String message) {
-        tvMessage.setText(message);
-        tvMessage.setVisibility(View.VISIBLE);
+        binding.tvActivitySearchMessage.setText(message);
+        binding.tvActivitySearchMessage.setVisibility(View.VISIBLE);
     }
 
     private void hideError() {
-        tvMessage.setText("");
-        tvMessage.setVisibility(View.GONE);
+        binding.tvActivitySearchMessage.setText("");
+        binding.tvActivitySearchMessage.setVisibility(View.GONE);
     }
 }
