@@ -25,26 +25,33 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.RepositoryHolder>() {
     override fun onBindViewHolder(holder: RepositoryHolder, position: Int) {
         val repo = items[position]
 
-        GlideApp.with(holder.itemView.context)
-                .load(repo.owner.avatarUrl)
-                .placeholder(placeholder)
-                .into(holder.binding.ivItemRepositoryProfile)
+        with(holder.binding) {
+            GlideApp.with(root.context)
+                    .load(repo.owner.avatarUrl)
+                    .placeholder(placeholder)
+                    .into(ivItemRepositoryProfile)
 
-        holder.binding.tvItemRepositoryName.text = repo.fullName
-        holder.binding.tvItemRepositoryLanguage.text = if (TextUtils.isEmpty(repo.language)) holder.itemView.context.getText(R.string.no_language_specified) else repo.language
-        holder.itemView.setOnClickListener {
-            if (null != listener) {
-                listener!!.onItemClick(repo)
+            tvItemRepositoryName.text = repo.fullName
+            tvItemRepositoryLanguage.text = if (TextUtils.isEmpty(repo.language))
+                root.context.getText(R.string.no_language_specified)
+            else
+                repo.language
+
+            root.setOnClickListener {
+                if (null != listener) {
+                    listener!!.onItemClick(repo)
+                }
             }
         }
+
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    fun setItems(items: MutableList<GithubRepo>) {
-        this.items = items
+    fun setItems(items: List<GithubRepo>) {
+        this.items = items.toMutableList()
     }
 
     fun setItemClickListener(listener: ItemClickListener?) {
