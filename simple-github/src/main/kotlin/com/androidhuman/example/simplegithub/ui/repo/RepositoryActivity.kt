@@ -4,12 +4,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.androidhuman.example.simplegithub.R
-import com.androidhuman.example.simplegithub.api.GithubApi
-import com.androidhuman.example.simplegithub.api.GithubApiProvider
 import com.androidhuman.example.simplegithub.api.model.GithubRepo
+import com.androidhuman.example.simplegithub.api.provideGithubApi
 import com.androidhuman.example.simplegithub.databinding.ActivityRepositoryBinding
 import com.androidhuman.example.simplegithub.ui.GlideApp
-import com.androidhuman.example.simplegithub.ui.repo.RepositoryActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -19,20 +17,26 @@ import java.util.*
 
 class RepositoryActivity : AppCompatActivity() {
 
+    companion object {
+        const val KEY_USER_LOGIN = "user_login"
+        const val KEY_REPO_NAME = "repo_name"
+    }
+
     private lateinit var binding: ActivityRepositoryBinding
 
-    internal lateinit var api: GithubApi
-    internal lateinit var repoCall: Call<GithubRepo>
+    internal val api by lazy { provideGithubApi(this) }
+    internal var repoCall: Call<GithubRepo>? = null
 
-    internal var dateFormatInResponse = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
-    internal var dateFormatToShow = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    internal val dateFormatInResponse = SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
+    internal val dateFormatToShow = SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRepositoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        api = GithubApiProvider.provideGithubApi(this)
         val login = intent.getStringExtra(KEY_USER_LOGIN)
                 ?: throw IllegalArgumentException("No login info exists in extras")
         val repo = intent.getStringExtra(KEY_REPO_NAME)
@@ -41,11 +45,16 @@ class RepositoryActivity : AppCompatActivity() {
         showRepositoryInfo(login, repo)
     }
 
+    override fun onStop() {
+        super.onStop()
+        repoCall?.run { cancel() }
+    }
+
     private fun showRepositoryInfo(login: String, repoName: String) {
         showProgress()
 
         repoCall = api.getRepository(login, repoName)
-        repoCall.enqueue(object : Callback<GithubRepo> {
+        repoCall!!.enqueue(object : Callback<GithubRepo> {
             override fun onResponse(call: Call<GithubRepo>, response: Response<GithubRepo>) {
                 hideProgress(true)
 
@@ -101,12 +110,10 @@ class RepositoryActivity : AppCompatActivity() {
     }
 
     private fun showError(message: String?) {
-        binding.tvActivityRepositoryMessage.text = message ?: "Unexpected error."
-        binding.tvActivityRepositoryMessage.visibility = View.VISIBLE
+        with(binding.tvActivityRepositoryMessage) {
+            text = message ?: "Unexpected error."
+            visibility = View.VISIBLE
+        }
     }
 
-    companion object {
-        const val KEY_USER_LOGIN = "user_login"
-        const val KEY_REPO_NAME = "repo_name"
-    }
 }

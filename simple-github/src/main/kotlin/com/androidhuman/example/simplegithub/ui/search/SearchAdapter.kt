@@ -10,45 +10,36 @@ import com.androidhuman.example.simplegithub.R
 import com.androidhuman.example.simplegithub.api.model.GithubRepo
 import com.androidhuman.example.simplegithub.databinding.ItemRepositoryBinding
 import com.androidhuman.example.simplegithub.ui.GlideApp
-import java.util.*
 
 class SearchAdapter : RecyclerView.Adapter<SearchAdapter.RepositoryHolder>() {
 
-    private var items: MutableList<GithubRepo> = ArrayList()
+    private var items: MutableList<GithubRepo> = mutableListOf()
     private val placeholder = ColorDrawable(Color.GRAY)
     private var listener: ItemClickListener? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepositoryHolder {
-        return RepositoryHolder(ItemRepositoryBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int)
+            = RepositoryHolder(ItemRepositoryBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: RepositoryHolder, position: Int) {
-        val repo = items[position]
+        items[position].let { repo ->
+            with(holder.binding) {
+                GlideApp.with(root.context)
+                        .load(repo.owner.avatarUrl)
+                        .placeholder(placeholder)
+                        .into(ivItemRepositoryProfile)
 
-        with(holder.binding) {
-            GlideApp.with(root.context)
-                    .load(repo.owner.avatarUrl)
-                    .placeholder(placeholder)
-                    .into(ivItemRepositoryProfile)
+                tvItemRepositoryName.text = repo.fullName
+                tvItemRepositoryLanguage.text = if (TextUtils.isEmpty(repo.language))
+                    root.context.getText(R.string.no_language_specified)
+                else
+                    repo.language
 
-            tvItemRepositoryName.text = repo.fullName
-            tvItemRepositoryLanguage.text = if (TextUtils.isEmpty(repo.language))
-                root.context.getText(R.string.no_language_specified)
-            else
-                repo.language
-
-            root.setOnClickListener {
-                if (null != listener) {
-                    listener!!.onItemClick(repo)
-                }
+                root.setOnClickListener { listener?.onItemClick(repo) }
             }
         }
-
     }
 
-    override fun getItemCount(): Int {
-        return items.size
-    }
+    override fun getItemCount() = items.size
 
     fun setItems(items: List<GithubRepo>) {
         this.items = items.toMutableList()
