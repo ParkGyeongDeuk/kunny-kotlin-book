@@ -1,10 +1,10 @@
 package com.androidhuman.example.simplegithub.ui.main
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.androidhuman.example.simplegithub.databinding.ActivityMainBinding
 import com.androidhuman.example.simplegithub.ui.search.SearchActivity
+import org.jetbrains.anko.startActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnActivityMainSearch.setOnClickListener {
-            startActivity(Intent(this@MainActivity, SearchActivity::class.java))
+            startActivity<SearchActivity>()
         }
     }
 }

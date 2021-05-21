@@ -55,6 +55,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "org.jetbrains.anko:anko-commons:$ankoVersion"
 
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
 }
