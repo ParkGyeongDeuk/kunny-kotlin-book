@@ -17,4 +17,6 @@ ext {
     recyclerviewVersion = '1.2.0'
     kotlinVersion = '1.4.10'
     ankoVersion = '0.10.8'
+    rxAndroidVersion = '2.0.1'
+    rxJavaVersion = '2.1.3'
 }
