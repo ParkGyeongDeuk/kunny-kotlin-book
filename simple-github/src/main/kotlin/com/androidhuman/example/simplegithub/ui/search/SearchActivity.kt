@@ -13,6 +13,7 @@ import com.androidhuman.example.simplegithub.api.model.GithubRepo
 import com.androidhuman.example.simplegithub.api.model.RepoSearchResponse
 import com.androidhuman.example.simplegithub.api.provideGithubApi
 import com.androidhuman.example.simplegithub.databinding.ActivitySearchBinding
+import com.androidhuman.example.simplegithub.extensions.plusAssign
 import com.androidhuman.example.simplegithub.ui.repo.RepositoryActivity
 import com.androidhuman.example.simplegithub.ui.search.SearchAdapter.ItemClickListener
 import io.reactivex.Observable
@@ -114,7 +115,8 @@ class SearchActivity : AppCompatActivity(), ItemClickListener {
     private fun searchRepository(query: String) {
 
         // REST API를 통해 검색 결과를 요청합니다.
-        disposables.add(api.searchRepository(query)
+        // '+=' 연산자로 디스포저블을 CompositeDisposable에 추가합니다.
+        disposables += api.searchRepository(query)
 
                 // Observable 형태로 결과를 바꿔주기 위해 flatMap을 사용합니다.
                 .flatMap {
@@ -155,7 +157,7 @@ class SearchActivity : AppCompatActivity(), ItemClickListener {
                     // 네트워크 오류나 데이터 처리 오류 등
                     // 작업이 정상적으로 완료되지 않았을 때 호출됩니다.
                     showError(it.message)
-                })
+                }
 
     }
 
