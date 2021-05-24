@@ -19,4 +19,5 @@ ext {
     ankoVersion = '0.10.8'
     rxAndroidVersion = '3.0.0'
     rxJavaVersion = '3.0.12'
+    rxBindingVersion = '4.0.0'
 }
