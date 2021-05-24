@@ -7,7 +7,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
@@ -16,7 +16,7 @@ fun provideAuthApi(): AuthApi
         .baseUrl("https://github.com/")
         .client(provideOkHttpClient(provideLoggingInterceptor(), null))
         // 받은 응답을 옵서버블 형태로 변환해주도록 합니다.
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
+        .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(AuthApi::class.java)
@@ -28,7 +28,7 @@ fun provideGithubApi(context: Context): GithubApi
         .client(provideOkHttpClient(provideLoggingInterceptor(),
                 provideAuthInterceptor(provideAuthTokenProvider(context))))
         // 받은 응답을 옵서버블 형태로 반환하며, 비동기 방식으로 API를 호출합니다.
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
+        .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(GithubApi::class.java)

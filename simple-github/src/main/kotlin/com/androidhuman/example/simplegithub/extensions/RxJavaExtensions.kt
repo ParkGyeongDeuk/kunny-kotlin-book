@@ -1,7 +1,8 @@
 package com.androidhuman.example.simplegithub.extensions
 
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+
 
 /**
  * CompositeDisposable의 '+=' 연산자 뒤에 Disposable 타입이 오는 경우를 재정의 합니다.
