@@ -13,6 +13,7 @@ import com.androidhuman.example.simplegithub.api.model.GithubRepo
 import com.androidhuman.example.simplegithub.api.provideGithubApi
 import com.androidhuman.example.simplegithub.databinding.ActivitySearchBinding
 import com.androidhuman.example.simplegithub.extensions.plusAssign
+import com.androidhuman.example.simplegithub.rx.AutoClearedDisposable
 import com.androidhuman.example.simplegithub.ui.repo.RepositoryActivity
 import com.androidhuman.example.simplegithub.ui.search.SearchAdapter.ItemClickListener
 import com.jakewharton.rxbinding4.appcompat.queryTextChangeEvents
@@ -34,15 +35,23 @@ class SearchActivity : AppCompatActivity(), ItemClickListener {
 
     // 여러 디스포저블 객체를 관리할 수 있는 CompositeDisposable 객체를 초기화합니다.
 //    internal var searchCall: Call<RepoSearchResponse>? = null 대신 사용합니다.
-    internal val disposables = CompositeDisposable()
+//    internal val disposables = CompositeDisposable()
+    // CompositeDisposable에서 AutoClearedDisposable로 변경합니다.
+    internal val disposables = AutoClearedDisposable(this)
 
     // viewDisposables 프로퍼티를 추가합니다.
-    internal val viewDisposables = CompositeDisposable()
+//    internal val viewDisposables = CompositeDisposable()
+    // CompositeDisposable에서 AutoClearedDisposable로 변경합니다.
+    internal val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Lifecycle.addObserver() 함수를 사용하여 각 객체를 옵서버로 등록합니다.
+        lifecycle += disposables
+        lifecycle += viewDisposables
 
         with(binding.rvActivitySearchList) {
             layoutManager = LinearLayoutManager(this@SearchActivity)
@@ -50,17 +59,20 @@ class SearchActivity : AppCompatActivity(), ItemClickListener {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        // 관리하고 있던 디스포저블 객체를 모두 해제합니다.
-//        searchCall?.run { cancel() } 대신 사용합니다.
-        disposables.clear()
-        // 액티비티가 완전히 종료되고 있는 경우에만 관리하고 있는 디스포저블을 해제합니다.
-        // 화면이 꺼지거나 다른 액티비티를 호출하여 액티비티가 화면에서 사라지는 경우에는 해제하지 않습니다.
-        if (isFinishing) {
-            viewDisposables.clear()
-        }
-    }
+    /**
+     * lifecycle 사용으로 onStop() 함수는 더 이상 오버라이드 하지 않아도 됩니다.
+     */
+//    override fun onStop() {
+//        super.onStop()
+//        // 관리하고 있던 디스포저블 객체를 모두 해제합니다.
+////        searchCall?.run { cancel() } 대신 사용합니다.
+//        disposables.clear()
+//        // 액티비티가 완전히 종료되고 있는 경우에만 관리하고 있는 디스포저블을 해제합니다.
+//        // 화면이 꺼지거나 다른 액티비티를 호출하여 액티비티가 화면에서 사라지는 경우에는 해제하지 않습니다.
+//        if (isFinishing) {
+//            viewDisposables.clear()
+//        }
+//    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_activity_search, menu)

@@ -61,6 +61,10 @@ dependencies {
     implementation "io.reactivex.rxjava3:rxjava:$rxJavaVersion"
     implementation "com.jakewharton.rxbinding4:rxbinding:$rxBindingVersion"
     implementation "com.jakewharton.rxbinding4:rxbinding-appcompat:$rxBindingVersion"
+    // Lifecycles only (without ViewModel or LiveData)
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifeCycleVersion"
+    // alternately - if using Java8, use the following instead of lifecycle-compiler
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifeCycleVersion"
 
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
 }

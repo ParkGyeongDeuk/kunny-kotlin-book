@@ -7,6 +7,7 @@ import com.androidhuman.example.simplegithub.R
 import com.androidhuman.example.simplegithub.api.provideGithubApi
 import com.androidhuman.example.simplegithub.databinding.ActivityRepositoryBinding
 import com.androidhuman.example.simplegithub.extensions.plusAssign
+import com.androidhuman.example.simplegithub.rx.AutoClearedDisposable
 import com.androidhuman.example.simplegithub.ui.GlideApp
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -27,7 +28,9 @@ class RepositoryActivity : AppCompatActivity() {
 
     // 여러 디스포저블 객체를 관리할 수 있는 CompositeDisposable 객체를 초기화합니다.
 //    internal var repoCall: Call<GithubRepo>? = null
-    internal val disposables = CompositeDisposable()
+//    internal val disposables = CompositeDisposable()
+    // CompositeDisposable에서 AutoClearedDisposable로 변경합니다.
+    internal val disposables = AutoClearedDisposable(this)
 
     internal val dateFormatInResponse = SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
@@ -39,6 +42,9 @@ class RepositoryActivity : AppCompatActivity() {
         binding = ActivityRepositoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Lifecycle.addObserver() 함수를 사용하여 AutoClearedDisposable 객체를 옵서버로 등록합니다.
+        lifecycle += disposables
+
         val login = intent.getStringExtra(KEY_USER_LOGIN)
                 ?: throw IllegalArgumentException("No login info exists in extras")
         val repo = intent.getStringExtra(KEY_REPO_NAME)
@@ -47,13 +53,16 @@ class RepositoryActivity : AppCompatActivity() {
         showRepositoryInfo(login, repo)
     }
 
-    override fun onStop() {
-        super.onStop()
-
-        // 관리하고 있던 디스포저블 객체를 모두 해체합니다.
-//        repoCall?.run { cancel() }
-        disposables.clear()
-    }
+    /**
+     * lifecycle 사용으로 onStop() 함수는 더 이상 오버라이드 하지 않아도 됩니다.
+     */
+//    override fun onStop() {
+//        super.onStop()
+//
+//        // 관리하고 있던 디스포저블 객체를 모두 해체합니다.
+////        repoCall?.run { cancel() }
+//        disposables.clear()
+//    }
 
     private fun showRepositoryInfo(login: String, repoName: String) {
 
