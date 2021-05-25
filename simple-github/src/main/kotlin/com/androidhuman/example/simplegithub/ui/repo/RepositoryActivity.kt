@@ -60,22 +60,16 @@ class RepositoryActivity : AppCompatActivity() {
         // REST API를 통해 저장소 정보를 요청합니다.
         // '+=' 연산자로 디스포저블을 CompositeDisposable에 추가합니다.
         disposables += api.getRepository(login, repoName)
-
                 // 이 이후에 수행되는 코드는 모두 메인 스레드에서 실행합니다.
                 .observeOn(AndroidSchedulers.mainThread())
-
                 // 구독할 때 수행할 작업을 구현합니다.
                 .doOnSubscribe { showProgress() }
-
                 // 에러가 발생했을 때 수행할 작업을 구현합니다.
                 .doOnError { hideProgress(false) }
-
                 // 스트림이 정상 종료되었을 때 수행할 작업을 구현합니다.
                 .doOnComplete { hideProgress(true) }
-
                 // 옵서버블을 구독합니다.
                 .subscribe({ repo ->
-
                     // API를 통해 저장소 정보를 정상적으로 받았을 때 처리할 작업을 구현합니다.
                     // 작업 중 오류가 발생하면 이 블록은 호출되지 않습니다.
                     GlideApp.with(this@RepositoryActivity)

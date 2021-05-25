@@ -73,20 +73,15 @@ class SignInActivity : AppCompatActivity() {
         // REST API를 통해 엑세스 토큰을 요청합니다.
         // '+=' 연산자로 디스포저블을 CompositeDisposable에 추가합니다.
         disposables += api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
-
                 // REST API를 통해 받은 응답에서 엑세스 토큰만 추출합니다.
                 .map { it.accessToken }
-
                 // 이 이후에 수행되는 코드는 모두 메인 스레드에서 실행합니다.
                 // RxAndroid에서 제공하는 스케줄러인 AndroidSchedulers.mainThread()를 사용합니다.
                 .observeOn(AndroidSchedulers.mainThread())
-
                 // 구독할 때 수행할 작업을 구현합니다.
                 .doOnSubscribe { showProgress() }
-
                 // 스트림이 종료될 때 수행할 작업을 구현합니다.
                 .doOnTerminate { hideProgress() }
-
                 // 옵서버블을 구독합니다.
                 .subscribe({ token ->
                     // API를 통해 엑세스 토큰을 정상적으로 받았을 때 처리할 작업을 구현합니다.
