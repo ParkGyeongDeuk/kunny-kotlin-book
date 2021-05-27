@@ -11,15 +11,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.androidhuman.example.simplegithub.R
 import com.androidhuman.example.simplegithub.api.model.GithubRepo
 import com.androidhuman.example.simplegithub.api.provideGithubApi
+import com.androidhuman.example.simplegithub.data.provideSearchHistoryDao
 import com.androidhuman.example.simplegithub.databinding.ActivitySearchBinding
 import com.androidhuman.example.simplegithub.extensions.plusAssign
+import com.androidhuman.example.simplegithub.extensions.runOnIoScheduler
 import com.androidhuman.example.simplegithub.rx.AutoClearedDisposable
 import com.androidhuman.example.simplegithub.ui.repo.RepositoryActivity
 import com.androidhuman.example.simplegithub.ui.search.SearchAdapter.ItemClickListener
 import com.jakewharton.rxbinding4.appcompat.queryTextChangeEvents
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.jetbrains.anko.startActivity
 
 class SearchActivity : AppCompatActivity(), ItemClickListener {
@@ -43,6 +44,9 @@ class SearchActivity : AppCompatActivity(), ItemClickListener {
 //    internal val viewDisposables = CompositeDisposable()
     // CompositeDisposable에서 AutoClearedDisposable로 변경합니다.
     internal val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+
+    // SearchHistoryDao의 인스턴스를 받아옵니다.
+    internal val searchHistoryDao by lazy { provideSearchHistoryDao(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,6 +135,13 @@ class SearchActivity : AppCompatActivity(), ItemClickListener {
     }
 
     override fun onItemClick(repository: GithubRepo) {
+
+        // 데이터베이스에 저장소를 추가합니다.
+        // 데이터 조작 코드를 메인 스레드에서 호출하면 에러가 발생하므로,
+        // RxJava의 Completable을 사용하여 IO 스레드에서 데이터 추가 작업을 수행하도록 합니다.
+        // runOnIoScheduler 함수로 IO 스케줄러에서 실행할 작업을 간단히 표현합니다.
+        disposables += runOnIoScheduler { searchHistoryDao.add(repository) }
+
         startActivity<RepositoryActivity>(
                 RepositoryActivity.KEY_USER_LOGIN to repository.owner.login,
                 RepositoryActivity.KEY_REPO_NAME to repository.name)

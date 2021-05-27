@@ -1,8 +1,9 @@
 package com.androidhuman.example.simplegithub.extensions
 
 import com.androidhuman.example.simplegithub.rx.AutoClearedDisposable
-import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers.io
 
 
 /**
@@ -18,3 +19,8 @@ import io.reactivex.rxjava3.disposables.Disposable
  * CompositeDisposable.plusAssign() 대신 사용하도록 변경
  */
 operator fun AutoClearedDisposable.plusAssign(disposable: Disposable) = this.add(disposable)
+
+fun runOnIoScheduler(func: () -> Unit): Disposable
+        = Completable.fromCallable(func)
+        .subscribeOn(io())
+        .subscribe()

@@ -65,6 +65,10 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifeCycleVersion"
     // alternately - if using Java8, use the following instead of lifecycle-compiler
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifeCycleVersion"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    // Room 라이브러리 RxJava 플러그인
+    implementation "androidx.room:room-rxjava3:$roomVersion"
 
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
 }
