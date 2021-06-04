@@ -3,6 +3,7 @@ package com.androidhuman.example.simplegithub.ui.repo
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.androidhuman.example.simplegithub.R
 import com.androidhuman.example.simplegithub.api.provideGithubApi
 import com.androidhuman.example.simplegithub.databinding.ActivityRepositoryBinding
@@ -10,7 +11,6 @@ import com.androidhuman.example.simplegithub.extensions.plusAssign
 import com.androidhuman.example.simplegithub.rx.AutoClearedDisposable
 import com.androidhuman.example.simplegithub.ui.GlideApp
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,6 +31,12 @@ class RepositoryActivity : AppCompatActivity() {
 //    internal val disposables = CompositeDisposable()
     // CompositeDisposable에서 AutoClearedDisposable로 변경합니다.
     internal val disposables = AutoClearedDisposable(this)
+    // 액티비티가 완전히 종료되기 전까지 이벤트를 계속 받기 위해 추가합니다.
+    internal val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+    // RepositoryViewModel을 생성하기 위해 필요한 뷰모델 팩토리 클래스의 인스턴스를 생성합니다.
+    internal val viewModelFactory by lazy { RepositoryViewModelFactory(provideGithubApi(this)) }
+    // 뷰모델의 인스턴스는 onCreate()에서 받으므로, lateinit으로 선언합니다.
+    lateinit var viewModel: RepositoryViewModel
 
     internal val dateFormatInResponse = SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
@@ -42,15 +48,73 @@ class RepositoryActivity : AppCompatActivity() {
         binding = ActivityRepositoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // RepositoryViewModel의 인스턴스를 받습니다.
+        viewModel = ViewModelProvider(this, viewModelFactory)[RepositoryViewModel::class.java]
+
         // Lifecycle.addObserver() 함수를 사용하여 AutoClearedDisposable 객체를 옵서버로 등록합니다.
         lifecycle += disposables
+        // viewDisposables에서 이 액티비티의 생명주기 이벤트를 받도록 합니다.
+        lifecycle += viewDisposables
+
+        viewDisposables += viewModel.repository
+                .filter { !it.isEmpty }
+                .map { it.value }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { repository ->
+                    GlideApp.with(this@RepositoryActivity)
+                            .load(repository.owner.avatarUrl)
+                            .into(binding.ivActivityRepositoryProfile)
+
+                    binding.tvActivityRepositoryName.text = repository.fullName
+                    binding.tvActivityRepositoryStars.text = resources.getQuantityString(R.plurals.star, repository.stars, repository.stars)
+                    if (null == repository.description) {
+                        binding.tvActivityRepositoryDescription.setText(R.string.no_description_provided)
+                    } else {
+                        binding.tvActivityRepositoryDescription.text = repository.description
+                    }
+                    if (null == repository.language) {
+                        binding.tvActivityRepositoryLanguage.setText(R.string.no_language_specified)
+                    } else {
+                        binding.tvActivityRepositoryLanguage.text = repository.language
+                    }
+
+                    try {
+                        val lastUpdate = dateFormatInResponse.parse(repository.updatedAt)
+                        binding.tvActivityRepositoryLastUpdate.text = dateFormatToShow.format(lastUpdate)
+                    } catch (e: ParseException) {
+                        binding.tvActivityRepositoryLastUpdate.text = getString(R.string.unknown)
+                    }
+                }
+
+        // 메시지 이벤트를 구독합니다.
+        viewDisposables += viewModel.message
+                .observeOn(AndroidSchedulers.mainThread())
+                // 메시지 이벤트를 받으면 화면에 해당 메시지를 표시합니다.
+                .subscribe { message -> showError(message) }
+
+        // 저장소 정보를 보여주는 뷰의 표시 유무를 결정하는 이벤트를 구독합니다.
+        viewDisposables += viewModel.isContenVisible
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { visible -> setContentVisibility(visible) }
+
+        // 작업 진행 여부 이벤트를 구독합니다.
+        viewDisposables += viewModel.isLoading
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { isLoading ->
+                    // 작업 진행 여부 이벤트에 따라 프로그레스바의 표시 상태를 변경합니다.
+                    if (isLoading) {
+                        showProgress()
+                    } else {
+                        hideProgress()
+                    }
+                }
 
         val login = intent.getStringExtra(KEY_USER_LOGIN)
                 ?: throw IllegalArgumentException("No login info exists in extras")
         val repo = intent.getStringExtra(KEY_REPO_NAME)
                 ?: throw IllegalArgumentException("No repo info exists in extras")
 
-        showRepositoryInfo(login, repo)
+        disposables += viewModel.requestRepositoryInfo(login, repo)
     }
 
     /**
@@ -64,63 +128,16 @@ class RepositoryActivity : AppCompatActivity() {
 //        disposables.clear()
 //    }
 
-    private fun showRepositoryInfo(login: String, repoName: String) {
-
-        // REST API를 통해 저장소 정보를 요청합니다.
-        // '+=' 연산자로 디스포저블을 CompositeDisposable에 추가합니다.
-        disposables += api.getRepository(login, repoName)
-                // 이 이후에 수행되는 코드는 모두 메인 스레드에서 실행합니다.
-                .observeOn(AndroidSchedulers.mainThread())
-                // 구독할 때 수행할 작업을 구현합니다.
-                .doOnSubscribe { showProgress() }
-                // 에러가 발생했을 때 수행할 작업을 구현합니다.
-                .doOnError { hideProgress(false) }
-                // 스트림이 정상 종료되었을 때 수행할 작업을 구현합니다.
-                .doOnComplete { hideProgress(true) }
-                // 옵서버블을 구독합니다.
-                .subscribe({ repo ->
-                    // API를 통해 저장소 정보를 정상적으로 받았을 때 처리할 작업을 구현합니다.
-                    // 작업 중 오류가 발생하면 이 블록은 호출되지 않습니다.
-                    GlideApp.with(this@RepositoryActivity)
-                            .load(repo.owner.avatarUrl)
-                            .into(binding.ivActivityRepositoryProfile)
-
-                    binding.tvActivityRepositoryName.text = repo.fullName
-                    binding.tvActivityRepositoryStars.text = resources
-                            .getQuantityString(R.plurals.star, repo.stars, repo.stars)
-
-                    if (null == repo.description) {
-                        binding.tvActivityRepositoryDescription.setText(R.string.no_description_provided)
-                    } else {
-                        binding.tvActivityRepositoryDescription.text = repo.description
-                    }
-                    if (null == repo.language) {
-                        binding.tvActivityRepositoryLanguage.setText(R.string.no_language_specified)
-                    } else {
-                        binding.tvActivityRepositoryLanguage.text = repo.language
-                    }
-
-                    try {
-                        val lastUpdate = dateFormatInResponse.parse(repo.updatedAt)
-                        binding.tvActivityRepositoryLastUpdate.text = dateFormatToShow.format(lastUpdate)
-                    } catch (e: ParseException) {
-                        binding.tvActivityRepositoryLastUpdate.text = getString(R.string.unknown)
-                    }
-                }) {
-                    // 에러 블록
-                    // 네트워크 오류나 데이터 처리 오류 등 작업이 정상적으로 완료되지 않았을 때 호출됩니다.
-                    showError(it.message)
-                }
-    }
-
     private fun showProgress() {
-        binding.clActivityRepositoryContent.visibility = View.GONE
         binding.pbActivityRepository.visibility = View.VISIBLE
     }
 
-    private fun hideProgress(isSucceed: Boolean) {
-        binding.clActivityRepositoryContent.visibility = if (isSucceed) View.VISIBLE else View.GONE
+    private fun hideProgress() {
         binding.pbActivityRepository.visibility = View.GONE
+    }
+
+    private fun setContentVisibility(show: Boolean) {
+        binding.clActivityRepositoryContent.visibility = if (show) View.VISIBLE else View.GONE
     }
 
     private fun showError(message: String?) {

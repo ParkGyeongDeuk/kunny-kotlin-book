@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.lifecycle.ViewModelProvider
 import com.androidhuman.example.simplegithub.BuildConfig
 import com.androidhuman.example.simplegithub.api.provideAuthApi
 import com.androidhuman.example.simplegithub.data.AuthTokenProvider
@@ -14,7 +15,6 @@ import com.androidhuman.example.simplegithub.extensions.plusAssign
 import com.androidhuman.example.simplegithub.rx.AutoClearedDisposable
 import com.androidhuman.example.simplegithub.ui.main.MainActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.longToast
@@ -23,22 +23,31 @@ import org.jetbrains.anko.newTask
 class SignInActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignInBinding
-    internal val api by lazy { provideAuthApi() }
-    internal val authTokenProvider by lazy { AuthTokenProvider(this) }
 
     // 여러 디스포저블 객체를 관리할 수 있는 CompositeDisposable 객체를 초기화합니다.
 //    internal var accessTokenCall: Call<GithubAccessToken>? = null 대신 사용합니다.
 //    internal val disposables = CompositeDisposable()
     // CompositeDisposable에서 AutoClearedDisposable로 변경합니다.
     internal val disposables = AutoClearedDisposable(this)
+    // 액티비티가 완전히 종료되기 전까지 이벤트를 계속 받기 위해 추가합니다.
+    internal val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+    // SignInViewModel을 생성할 때 필요한 뷰모델 팩토리 클래스의 인스턴스를 생성합니다.
+    internal val viewModelFactory by lazy { SignInViewModelFactory(provideAuthApi(), AuthTokenProvider(this)) }
+    // 뷰모델의 인스턴스는 onCreate()에서 받으므로, lateinit으로 선언한다.
+    lateinit var viewModel: SignInViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // SignInViewModel의 인스턴스를 받습니다.
+        viewModel = ViewModelProvider(this, viewModelFactory) [SignInViewModel::class.java]
+
         // Lifecycle.addObserver() 함수를 사용하여 AutoClearedDisposable 객체를 옵서버로 등록합니다.
         lifecycle += disposables
+        // viewDisposables에서 이 엑티비티의 생명주기 이벤트를 받도록 합니다.
+        lifecycle += viewDisposables
 
         binding.btnActivitySignInStart.setOnClickListener {
             val authUri = Uri.Builder().scheme("https").authority("github.com")
@@ -47,13 +56,38 @@ class SignInActivity : AppCompatActivity() {
                     .appendPath("authorize")
                     .appendQueryParameter("client_id", BuildConfig.GITHUB_CLIENT_ID)
                     .build()
+
             val intent = CustomTabsIntent.Builder().build()
             intent.launchUrl(this@SignInActivity, authUri)
         }
 
-        authTokenProvider.token?.let {
-            launchMainActivity()
-        }
+        // 액세스 토큰 이벤트를 구독합니다.
+        viewDisposables += viewModel.accessToken
+                // 액세스 토큰이 없는 경우는 무시합니다.
+                .filter { !it.isEmpty }
+                .observeOn(AndroidSchedulers.mainThread())
+                // 액세스 토큰이 있는 것을 확인했다면 메인 화면으로 이동합니다.
+                .subscribe { launchMainActivity() }
+
+        // 에러 메시지 이벤트를 구독합니다.
+        viewDisposables += viewModel.message
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { message -> showError(message) }
+
+        // 작업 진행 여부 이벤트를 구독합니다.
+        viewDisposables += viewModel.isLoading
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { isLoading ->
+                    // 작업 진행 여부 이벤트에 따라 프로그레스바의 표시 상태를 변경합니다.
+                    if (isLoading) {
+                        showProgress()
+                    } else {
+                        hideProgress()
+                    }
+                }
+
+        // 기기에 저장되어 있는 액세스 토큰을 불러옵니다.
+        disposables += viewModel.loadAccessToken()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -78,31 +112,8 @@ class SignInActivity : AppCompatActivity() {
 //    }
 
     private fun getAccessToken(code: String) {
-
-        // REST API를 통해 엑세스 토큰을 요청합니다.
-        // '+=' 연산자로 디스포저블을 CompositeDisposable에 추가합니다.
-        disposables += api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
-                // REST API를 통해 받은 응답에서 엑세스 토큰만 추출합니다.
-                .map { it.accessToken }
-                // 이 이후에 수행되는 코드는 모두 메인 스레드에서 실행합니다.
-                // RxAndroid에서 제공하는 스케줄러인 AndroidSchedulers.mainThread()를 사용합니다.
-                .observeOn(AndroidSchedulers.mainThread())
-                // 구독할 때 수행할 작업을 구현합니다.
-                .doOnSubscribe { showProgress() }
-                // 스트림이 종료될 때 수행할 작업을 구현합니다.
-                .doOnTerminate { hideProgress() }
-                // 옵서버블을 구독합니다.
-                .subscribe({ token ->
-                    // API를 통해 엑세스 토큰을 정상적으로 받았을 때 처리할 작업을 구현합니다.
-                    // 작업 중 오류가 발생하면 이 블록은 호출되지 않습니다.
-                    authTokenProvider.updateToken(token)
-                    launchMainActivity()
-                }) {
-                    // 에러 블록
-                    // 네트워크 오류나 데이터 처리 오류 등
-                    // 작업이 정상적으로 완료되지 않았을 때 호출됩니다.
-                    showError(it)
-                }
+        // ViewModel에 정의된 함수를 사용하여 새로운 액세스 토큰을 요청합니다.
+        disposables += viewModel.requestAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
     }
 
     private fun showProgress() {
@@ -115,8 +126,8 @@ class SignInActivity : AppCompatActivity() {
         binding.pbActivitySignIn.visibility = View.GONE
     }
 
-    private fun showError(throwable: Throwable) {
-        longToast(throwable.message ?: "No message available")
+    private fun showError(message: String) {
+        longToast(message)
     }
 
     private fun launchMainActivity() {
