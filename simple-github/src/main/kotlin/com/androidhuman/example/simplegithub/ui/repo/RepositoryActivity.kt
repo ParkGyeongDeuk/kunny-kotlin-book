@@ -2,20 +2,22 @@ package com.androidhuman.example.simplegithub.ui.repo
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.androidhuman.example.simplegithub.R
-import com.androidhuman.example.simplegithub.api.provideGithubApi
+import com.androidhuman.example.simplegithub.api.GithubApi
 import com.androidhuman.example.simplegithub.databinding.ActivityRepositoryBinding
 import com.androidhuman.example.simplegithub.extensions.plusAssign
 import com.androidhuman.example.simplegithub.rx.AutoClearedDisposable
 import com.androidhuman.example.simplegithub.ui.GlideApp
+import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class RepositoryActivity : AppCompatActivity() {
+// AppCompatActivity 대신 DaggerAppCompatActivity를 상속합니다.
+class RepositoryActivity : DaggerAppCompatActivity() {
 
     companion object {
         const val KEY_USER_LOGIN = "user_login"
@@ -23,8 +25,6 @@ class RepositoryActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityRepositoryBinding
-
-    internal val api by lazy { provideGithubApi(this) }
 
     // 여러 디스포저블 객체를 관리할 수 있는 CompositeDisposable 객체를 초기화합니다.
 //    internal var repoCall: Call<GithubRepo>? = null
@@ -34,7 +34,10 @@ class RepositoryActivity : AppCompatActivity() {
     // 액티비티가 완전히 종료되기 전까지 이벤트를 계속 받기 위해 추가합니다.
     internal val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
     // RepositoryViewModel을 생성하기 위해 필요한 뷰모델 팩토리 클래스의 인스턴스를 생성합니다.
-    internal val viewModelFactory by lazy { RepositoryViewModelFactory(provideGithubApi(this)) }
+    internal val viewModelFactory by lazy {
+        // 대거를 통해 주입받은 객체를 생성자의 인자로 전달합니다.
+        RepositoryViewModelFactory(githubApi)
+    }
     // 뷰모델의 인스턴스는 onCreate()에서 받으므로, lateinit으로 선언합니다.
     lateinit var viewModel: RepositoryViewModel
 
@@ -42,6 +45,8 @@ class RepositoryActivity : AppCompatActivity() {
             "yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
     internal val dateFormatToShow = SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    // 대거를 통해 GithubApi를 주입받는 프로퍼티를 선언합니다.
+    @Inject lateinit var githubApi: GithubApi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

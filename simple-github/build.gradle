@@ -75,7 +75,19 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     // Room 라이브러리 RxJava 플러그인
     implementation "androidx.room:room-rxjava3:$roomVersion"
+    // 대거의 기본 기능을 사용하기 위해 필요합니다.
+    implementation "com.google.dagger:dagger:$daggerVersion"
+    // 안드로이드에 특화된 대거의 기능을 사용하기 위해 필요합니다.
+    implementation "com.google.dagger:dagger-android:$daggerVersion"
+    // 안드로이드 서포트 라이브러리를 지원하는 대거의 기능을 사용하기 위해 필요합니다.
+    // (DaggerAppCompatActivity, dagger.android.support.DaggerFragment)
+    implementation "com.google.dagger:dagger-android-support:$daggerVersion"
 
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
+    // 안드로이드에 특화된 대거의 기능을 처리해주는 어노테이션 프로세서입니다.
+    kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
+    // 대거의 기본 기능(의존관계 분석 및 코드 생성)을 처리해주는 어노테이션 프로세서입니다.
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+
 }

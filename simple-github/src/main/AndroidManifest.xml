@@ -6,7 +6,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <application
+    <!-- android:name에 SimpleGithubApp을 설정합니다.  -->
+    <application android:name=".SimpleGithubApp"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

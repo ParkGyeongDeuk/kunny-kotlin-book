@@ -22,4 +22,5 @@ ext {
     rxBindingVersion = '4.0.0'
     lifeCycleVersion = '2.3.1'
     roomVersion = '2.3.0'
+    daggerVersion = '2.37'
 }
