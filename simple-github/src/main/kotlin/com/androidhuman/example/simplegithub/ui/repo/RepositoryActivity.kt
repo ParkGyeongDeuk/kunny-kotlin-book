@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.androidhuman.example.simplegithub.R
-import com.androidhuman.example.simplegithub.api.GithubApi
 import com.androidhuman.example.simplegithub.databinding.ActivityRepositoryBinding
 import com.androidhuman.example.simplegithub.extensions.plusAssign
 import com.androidhuman.example.simplegithub.rx.AutoClearedDisposable
@@ -33,11 +32,8 @@ class RepositoryActivity : DaggerAppCompatActivity() {
     internal val disposables = AutoClearedDisposable(this)
     // 액티비티가 완전히 종료되기 전까지 이벤트를 계속 받기 위해 추가합니다.
     internal val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
-    // RepositoryViewModel을 생성하기 위해 필요한 뷰모델 팩토리 클래스의 인스턴스를 생성합니다.
-    internal val viewModelFactory by lazy {
-        // 대거를 통해 주입받은 객체를 생성자의 인자로 전달합니다.
-        RepositoryViewModelFactory(githubApi)
-    }
+    // 대거로부터 RepositoryViewModelFactory 객체를 주입받습니다.
+    @Inject lateinit var viewModelFactory: RepositoryViewModelFactory
     // 뷰모델의 인스턴스는 onCreate()에서 받으므로, lateinit으로 선언합니다.
     lateinit var viewModel: RepositoryViewModel
 
@@ -45,8 +41,7 @@ class RepositoryActivity : DaggerAppCompatActivity() {
             "yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
     internal val dateFormatToShow = SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    // 대거를 통해 GithubApi를 주입받는 프로퍼티를 선언합니다.
-    @Inject lateinit var githubApi: GithubApi
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

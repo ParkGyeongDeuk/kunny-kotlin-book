@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.androidhuman.example.simplegithub.R
 import com.androidhuman.example.simplegithub.api.model.GithubRepo
-import com.androidhuman.example.simplegithub.data.SearchHistoryDao
 import com.androidhuman.example.simplegithub.databinding.ActivityMainBinding
 import com.androidhuman.example.simplegithub.extensions.plusAssign
 import com.androidhuman.example.simplegithub.rx.AutoActivateDisposable
@@ -26,21 +25,16 @@ import javax.inject.Inject
 class MainActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListener {
 
     private lateinit var binding: ActivityMainBinding
-    // 어댑터 프로퍼티를 추가합니다.
-    internal val adapter by lazy { SearchAdapter().apply { setItemClickListener(this@MainActivity) } }
     // 디스포저블을 관리하는 프로퍼티를 추가합니다.
     internal val disposables = AutoClearedDisposable(this)
     // 액티비티가 완전히 종료되기 전까지 이벤트를 계속 받기 위해 추가합니다.
     internal val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
-    // MainViewModel을 생성하기 위해 필요한 뷰모델 팩토리 클래스의 인스턴스를 생성합니다.
-    internal val viewModelFactory by lazy {
-        // 대거를 통해 주입받은 객체를 생성자의 인자로 전달합니다.
-        MainViewModelFactory(searchHistoryDao)
-    }
+    // 대거로부터 SearchAdapter 객체를 주입받습니다.
+    @Inject lateinit var adapter: SearchAdapter
+    // 대거로부터 MainViewModelFactory 객체를 주입받습니다.
+    @Inject lateinit var viewModelFactory: MainViewModelFactory
     // 뷰모델의 인스턴스는 onCreate()에서 받으므로, lateinit으로 선언합니다.
     lateinit var viewModel: MainViewModel
-    // 대거를 통해 SearchHistoryDao를 주입받는 프로퍼티를 선언합니다.
-    @Inject lateinit var searchHistoryDao: SearchHistoryDao
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
